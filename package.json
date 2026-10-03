@@ -2,14 +2,24 @@
   "name": "fair-drop",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:data": "node scripts/check-data.mjs",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:seed": "node scripts/seed-database.mjs",
+    "worker": "node server/worker.js",
+    "load:k6": "k6 run scripts/load/fairdrop.js"
   },
   "dependencies": {
+    "bullmq": "^6.3.11",
+    "ioredis": "^6.0.0",
     "next": "16.3.8",
+    "nodemailer": "^10.0.14",
+    "pg": "^8.23.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },

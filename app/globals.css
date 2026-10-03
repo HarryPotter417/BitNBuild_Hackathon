@@ -1,26 +1,546 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   FAIR DROP — DESIGN SYSTEM
+   Centralised semantic tokens. No component hardcodes a colour.
+   Light theme by default; `.theme-dark` (admin / control centre) remaps the
+   same token names, so every component is theme-agnostic.
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand — electric / royal blue */
+  --fd-brand-50: #eef1fe;
+  --fd-brand-100: #dfe4fd;
+  --fd-brand-200: #c5cdfb;
+  --fd-brand-300: #a2adf8;
+  --fd-brand-400: #7f88f3;
+  --fd-brand-500: #5c63ec;
+  --fd-brand-600: #3f45e0;
+  --fd-brand-700: #3336c2;
+  --fd-brand-800: #2b2d9e;
+  --fd-brand-900: #23247d;
+
+  /* Status */
+  --fd-success: #0f9d6f;
+  --fd-success-soft: #e6f7f1;
+  --fd-success-line: #b9e6d6;
+
+  --fd-warning: #c2760a;
+  --fd-warning-soft: #fdf3e2;
+  --fd-warning-line: #f0d9ac;
+
+  --fd-danger: #d92d20;
+  --fd-danger-soft: #fdeceb;
+  --fd-danger-line: #f5c6c2;
+
+  --fd-info: #0b7fd4;
+  --fd-info-soft: #e6f3fc;
+  --fd-info-line: #b9dcf5;
+
+  /* Neutral / slate ramp */
+  --fd-n-0: #ffffff;
+  --fd-n-25: #fcfdfe;
+  --fd-n-50: #f7f9fc;
+  --fd-n-100: #eef2f7;
+  --fd-n-150: #e5eaf2;
+  --fd-n-200: #dbe2ec;
+  --fd-n-300: #c2ccdb;
+  --fd-n-400: #94a2b8;
+  --fd-n-500: #6b7a93;
+  --fd-n-600: #4d5b73;
+  --fd-n-700: #3a465c;
+  --fd-n-800: #232c3d;
+  --fd-n-850: #1a2231;
+  --fd-n-900: #111827;
+  --fd-n-950: #080d18;
+
+  /* Semantic — LIGHT */
+  --fd-bg: #ffffff;
+  --fd-bg-alt: var(--fd-n-50);
+  --fd-surface: #ffffff;
+  --fd-surface-muted: var(--fd-n-50);
+  --fd-surface-sunken: var(--fd-n-100);
+  --fd-border: var(--fd-n-200);
+  --fd-border-strong: var(--fd-n-300);
+  --fd-text: #0d1526;
+  --fd-text-secondary: #47566e;
+  --fd-text-muted: #6b7a93;
+  --fd-text-invert: #ffffff;
+
+  --fd-primary: var(--fd-brand-600);
+  --fd-primary-hover: var(--fd-brand-700);
+  --fd-primary-soft: var(--fd-brand-50);
+  --fd-primary-line: var(--fd-brand-200);
+  --fd-primary-contrast: #ffffff;
+
+  --fd-accent: var(--fd-brand-500);
+
+  --fd-shadow-sm: 0 1px 2px 0 rgb(13 21 38 / 0.05);
+  --fd-shadow: 0 1px 3px 0 rgb(13 21 38 / 0.06), 0 1px 2px -1px rgb(13 21 38 / 0.05);
+  --fd-shadow-md: 0 4px 12px -2px rgb(13 21 38 / 0.08), 0 2px 6px -2px rgb(13 21 38 / 0.05);
+  --fd-shadow-lg: 0 14px 34px -10px rgb(13 21 38 / 0.14), 0 6px 14px -8px rgb(13 21 38 / 0.08);
+  --fd-ring: 0 0 0 3px rgb(63 69 224 / 0.28);
+
+  --fd-grid-line: rgb(13 21 38 / 0.055);
+}
+
+/* Semantic — DARK (admin control centre + cinematic surfaces) */
+.theme-dark {
+  --fd-bg: #070b16;
+  --fd-bg-alt: #0a1020;
+  --fd-surface: #0e1526;
+  --fd-surface-muted: #121b30;
+  --fd-surface-sunken: #0a1020;
+  --fd-border: #1d2941;
+  --fd-border-strong: #2b3a57;
+  --fd-text: #e9eefa;
+  --fd-text-secondary: #a3b0c9;
+  --fd-text-muted: #6f7f9c;
+
+  --fd-primary: #7b83f7;
+  --fd-primary-hover: #949bff;
+  --fd-primary-soft: rgb(123 131 247 / 0.14);
+  --fd-primary-line: rgb(123 131 247 / 0.34);
+  --fd-primary-contrast: #0a0f1e;
+
+  --fd-success: #34d39e;
+  --fd-success-soft: rgb(52 211 158 / 0.13);
+  --fd-success-line: rgb(52 211 158 / 0.3);
+
+  --fd-warning: #f0b429;
+  --fd-warning-soft: rgb(240 180 41 / 0.13);
+  --fd-warning-line: rgb(240 180 41 / 0.3);
+
+  --fd-danger: #f97066;
+  --fd-danger-soft: rgb(249 112 102 / 0.13);
+  --fd-danger-line: rgb(249 112 102 / 0.32);
+
+  --fd-info: #4bb8f5;
+  --fd-info-soft: rgb(75 184 245 / 0.13);
+  --fd-info-line: rgb(75 184 245 / 0.32);
+
+  --fd-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --fd-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.45);
+  --fd-shadow-md: 0 6px 18px -6px rgb(0 0 0 / 0.6);
+  --fd-shadow-lg: 0 22px 48px -14px rgb(0 0 0 / 0.7);
+  --fd-ring: 0 0 0 3px rgb(123 131 247 / 0.4);
+
+  --fd-grid-line: rgb(255 255 255 / 0.05);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--fd-bg);
+  --color-bg-alt: var(--fd-bg-alt);
+  --color-surface: var(--fd-surface);
+  --color-surface-muted: var(--fd-surface-muted);
+  --color-surface-sunken: var(--fd-surface-sunken);
+
+  --color-line: var(--fd-border);
+  --color-line-strong: var(--fd-border-strong);
+
+  --color-ink: var(--fd-text);
+  --color-ink-secondary: var(--fd-text-secondary);
+  --color-ink-muted: var(--fd-text-muted);
+  --color-ink-invert: var(--fd-text-invert);
+
+  --color-primary: var(--fd-primary);
+  --color-primary-hover: var(--fd-primary-hover);
+  --color-primary-soft: var(--fd-primary-soft);
+  --color-primary-line: var(--fd-primary-line);
+  --color-primary-contrast: var(--fd-primary-contrast);
+
+  --color-success: var(--fd-success);
+  --color-success-soft: var(--fd-success-soft);
+  --color-success-line: var(--fd-success-line);
+
+  --color-warning: var(--fd-warning);
+  --color-warning-soft: var(--fd-warning-soft);
+  --color-warning-line: var(--fd-warning-line);
+
+  --color-danger: var(--fd-danger);
+  --color-danger-soft: var(--fd-danger-soft);
+  --color-danger-line: var(--fd-danger-line);
+
+  --color-info: var(--fd-info);
+  --color-info-soft: var(--fd-info-soft);
+  --color-info-line: var(--fd-info-line);
+
+  --color-brand-50: var(--fd-brand-50);
+  --color-brand-100: var(--fd-brand-100);
+  --color-brand-200: var(--fd-brand-200);
+  --color-brand-300: var(--fd-brand-300);
+  --color-brand-400: var(--fd-brand-400);
+  --color-brand-500: var(--fd-brand-500);
+  --color-brand-600: var(--fd-brand-600);
+  --color-brand-700: var(--fd-brand-700);
+  --color-brand-800: var(--fd-brand-800);
+  --color-brand-900: var(--fd-brand-900);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --shadow-fd-sm: var(--fd-shadow-sm);
+  --shadow-fd: var(--fd-shadow);
+  --shadow-fd-md: var(--fd-shadow-md);
+  --shadow-fd-lg: var(--fd-shadow-lg);
+
+  --radius-card: 0.875rem;
+
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.4s ease both;
+  --animate-scale-in: scale-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-shimmer: shimmer 1.9s linear infinite;
+  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+  --animate-draw-sweep: draw-sweep 2.6s linear infinite;
+  --animate-confetti: confetti-fall linear forwards;
+  --animate-marquee: marquee 42s linear infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 var(--fd-primary-line);
+  }
+  70% {
+    box-shadow: 0 0 0 14px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes draw-sweep {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(400%);
+  }
+}
+
+@keyframes confetti-fall {
+  from {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(var(--confetti-drift, 12px), 108vh, 0) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ============================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  * {
+    border-color: var(--fd-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--fd-bg);
+    color: var(--fd-text);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--fd-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--fd-primary);
+    color: var(--fd-primary-contrast);
+  }
+
+  /* Scrollbars — light + dark aware */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--fd-border-strong) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--fd-border-strong);
+    border-radius: 999px;
+    border: 3px solid var(--fd-bg);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--fd-text-muted);
+  }
+}
+
+/* ============================================================================
+   TYPOGRAPHY SCALE
+   ========================================================================== */
+
+@layer components {
+  .fd-hero {
+    font-size: clamp(2.6rem, 6.4vw, 4.6rem);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+
+  .fd-display {
+    font-size: clamp(2rem, 4.2vw, 3.1rem);
+    line-height: 1.06;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .fd-page-title {
+    font-size: clamp(1.7rem, 3vw, 2.35rem);
+    line-height: 1.12;
+    font-weight: 680;
+    letter-spacing: -0.028em;
+  }
+
+  .fd-section-title {
+    font-size: clamp(1.3rem, 2vw, 1.65rem);
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -0.022em;
+  }
+
+  .fd-card-title {
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    font-weight: 620;
+    letter-spacing: -0.014em;
+  }
+
+  .fd-eyebrow {
+    font-size: 0.6875rem;
+    line-height: 1;
+    font-weight: 620;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .fd-body {
+    font-size: 0.9375rem;
+    line-height: 1.62;
+  }
+
+  .fd-body-sm {
+    font-size: 0.875rem;
+    line-height: 1.55;
+  }
+
+  .fd-caption {
+    font-size: 0.78125rem;
+    line-height: 1.45;
+  }
+
+  .fd-metric {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .fd-metric-sm {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 1.375rem;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .fd-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .fd-hash {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.78125rem;
+    letter-spacing: -0.01em;
+    word-break: break-all;
+  }
+
+  .fd-lede {
+    font-size: clamp(1rem, 1.35vw, 1.1875rem);
+    line-height: 1.62;
+    color: var(--fd-text-secondary);
+  }
+}
+
+/* ============================================================================
+   SURFACES / UTILITIES
+   ========================================================================== */
+
+@layer components {
+  .fd-card {
+    background-color: var(--fd-surface);
+    border: 1px solid var(--fd-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--fd-shadow-sm);
+  }
+
+  .fd-card-raised {
+    background-color: var(--fd-surface);
+    border: 1px solid var(--fd-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--fd-shadow-md);
+  }
+
+  .fd-panel-dark {
+    background-color: var(--fd-surface);
+    border: 1px solid var(--fd-border);
+    border-radius: var(--radius-card);
+  }
+
+  /* Faint engineering grid used behind hero + admin headers */
+  .fd-grid-bg {
+    background-image: linear-gradient(to right, var(--fd-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--fd-grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .fd-dot-bg {
+    background-image: radial-gradient(var(--fd-grid-line) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .fd-divider {
+    height: 1px;
+    background: var(--fd-border);
+  }
+
+  .fd-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--fd-surface-sunken);
+    border-radius: 6px;
+  }
+  .fd-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--fd-text) 7%, transparent),
+      transparent
+    );
+    animation: var(--animate-shimmer);
+  }
+
+  .fd-numeric {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Screen-reader-only */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+/* ============================================================================
+   MOTION PREFERENCES
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fd-skeleton::after {
+    display: none;
+  }
 }
