@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 import { cn } from "../lib/cn";
 import { Logo } from "./event-art";
 
-const LINKS = [
-  { href: "/events", label: "Events" },
+const BASE_LINKS = [
   { href: "/me", label: "My Entries" },
   { href: "/me/history", label: "History" },
   { href: "/#how-it-works", label: "How It Works" },
@@ -15,6 +14,11 @@ const LINKS = [
 
 export function PublicHeader({ user }) {
   const pathname = usePathname();
+  const isAdmin = user?.role === "admin";
+  const links = [
+    { href: isAdmin ? "/admin/events" : "/events", label: "Events" },
+    ...BASE_LINKS,
+  ];
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -41,7 +45,7 @@ export function PublicHeader({ user }) {
         </Link>
 
         <nav className="hidden flex-1 items-center gap-1 md:flex" aria-label="Primary">
-          {LINKS.map((link) => {
+          {links.map((link) => {
             const active =
               pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`));
             return (
@@ -81,10 +85,10 @@ export function PublicHeader({ user }) {
           ) : null}
 
           <Link
-            href="/events"
+            href={isAdmin ? "/admin" : "/events"}
             className="hidden h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-contrast shadow-fd-sm transition-colors hover:bg-primary-hover sm:inline-flex"
           >
-            Browse events
+            {isAdmin ? "Admin dashboard" : "Browse events"}
           </Link>
 
           <button
@@ -109,7 +113,7 @@ export function PublicHeader({ user }) {
       {open ? (
         <div className="border-t border-line bg-surface md:hidden">
           <nav className="mx-auto flex max-w-[1240px] flex-col gap-1 px-5 py-4" aria-label="Mobile">
-            {LINKS.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -119,6 +123,15 @@ export function PublicHeader({ user }) {
                 {link.label}
               </Link>
             ))}
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary-soft"
+              >
+                Admin dashboard
+              </Link>
+            ) : null}
           </nav>
         </div>
       ) : null}

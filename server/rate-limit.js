@@ -21,8 +21,8 @@ export async function enforceRateLimit(key, { limit, windowMs }) {
   return { allowed: count <= limit, remaining: Math.max(0, limit - count), retryAfterMs: Math.max(0, ttl) };
 }
 
-export function clientAddress(request) {
+export function clientAddress(request, fallback = "unknown") {
   // Trust only the ingress proxy configured by the deployment.
   const forwarded = process.env.TRUST_PROXY === "true" ? request.headers.get("x-forwarded-for") : null;
-  return (forwarded?.split(",")[0]?.trim() || "unknown").slice(0, 64);
+  return (forwarded?.split(",")[0]?.trim() || fallback).slice(0, 64);
 }

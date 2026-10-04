@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { joinEventAction } from "../app/actions";
 import { eventStatus } from "../lib/status";
+import { Button } from "./ui";
 
 /**
  * Join / already-entered control.
@@ -15,7 +16,6 @@ export function JoinButton({ event, outcome }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [state, setState] = useState(null);
-  const [requests, setRequests] = useState(outcome.requestCount || 0);
   const [hasEntry, setHasEntry] = useState(outcome.status !== "NONE");
 
   const status = eventStatus(event.state);
@@ -23,19 +23,67 @@ export function JoinButton({ event, outcome }) {
   if (!status.joinable) {
     if (hasEntry) {
       return (
-        <div className="fd-body-sm text-ink-secondary flex items-center gap-2">
-          <span className="grid size-5 place-items-center rounded-full bg-success-soft text-success">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M3.5 8.4l3 3 6-6.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-          You have an entry · {requests || 1} request{requests === 1 ? "" : "s"} sent
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="fd-body-sm text-ink-secondary flex items-center gap-2">
+            <span className="grid size-5 place-items-center rounded-full bg-success-soft text-success">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3.5 8.4l3 3 6-6.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            Your draw entry is recorded
+          </p>
+          <Button
+            href={outcome.status === "WAITING" ? `/me/waiting-room/${event.id}` : "/me"}
+            variant="secondary"
+            size="sm"
+          >
+            {outcome.status === "WAITING" ? "View draw status" : "View my entries"}
+          </Button>
+        </div>
+      );
+    }
+    if (event.state === "SCHEDULED") {
+      return (
+        <div className="max-w-xl rounded-xl border border-info-line bg-info-soft p-4">
+          <p className="fd-body-sm font-semibold text-ink">Entry has not opened yet</p>
+          <p className="fd-caption mt-1.5 text-ink-secondary">
+            The organiser must open the event before you can enter. Fair Drop assigns seats by a
+            verifiable draw; attendees cannot reserve or choose a specific seat.
+          </p>
         </div>
       );
     }
     return (
-      <div className="fd-body-sm text-ink-muted">
-        Entries are closed — this event is {status.label.toLowerCase()}.
+      <div className="max-w-xl">
+        <p className="fd-body-sm text-ink-muted">
+          Entries are closed — this event is {status.label.toLowerCase()}.
+        </p>
+        <p className="fd-caption mt-1.5 text-ink-muted">
+          Seats are assigned by the draw, not booked individually.
+        </p>
+      </div>
+    );
+  }
+
+  if (hasEntry) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <div>
+          <p className="fd-body-sm text-ink-secondary flex items-center gap-2">
+            <span className="grid size-5 place-items-center rounded-full bg-success-soft text-success">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3.5 8.4l3 3 6-6.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            You&apos;re in the draw · one entry recorded
+          </p>
+          <p className="fd-caption mt-1.5 text-ink-muted">
+            If selected, you&apos;ll receive an assigned seat to claim before the deadline. Seats can&apos;t be chosen manually.
+          </p>
+        </div>
+        <Button href={`/me/waiting-room/${event.id}`} variant="secondary" size="sm">
+          View draw status
+        </Button>
       </div>
     );
   }
@@ -63,8 +111,7 @@ export function JoinButton({ event, outcome }) {
         result = await joinEventAction(event.id);
       }
       setState(result?.error ? { ...result,message:result.error } : result);
-      setRequests(result.entry?.requestCount || result.requestCount || 1);
-      if (result.ok && !result.duplicate) setHasEntry(true);
+      if (result.ok) setHasEntry(true);
       router.refresh();
     });
   };
@@ -76,39 +123,24 @@ export function JoinButton({ event, outcome }) {
         onClick={press}
         disabled={pending}
         className={`inline-flex h-12 items-center justify-center gap-2 rounded-xl px-6 text-[0.9375rem] font-semibold shadow-fd-sm transition-all ${
-          hasEntry
-            ? "bg-surface text-ink ring-1 ring-inset ring-line-strong hover:bg-surface-muted"
-            : "bg-primary text-primary-contrast hover:bg-primary-hover"
+          "bg-primary text-primary-contrast hover:bg-primary-hover"
         } disabled:opacity-60`}
       >
         {pending
           ? "Sending…"
-          : hasEntry
-            ? `Send another request (${requests})`
-            : "Enter this event"}
+          : "Enter the fair draw"}
       </button>
 
       {state ? (
         <p
-          className={`fd-caption mt-2.5 max-w-sm ${state.duplicate ? "text-ink-muted" : "text-success"}`}
+          className={`fd-caption mt-2.5 max-w-sm ${state.ok ? "text-success" : "text-danger"}`}
           role="status"
         >
           {state.message}
-          {state.duplicate ? (
-            <> Entry count is still 1.</>
-          ) : (
-            <> Entries: {event.participants.toLocaleString("en-IN")}.</>
-          )}
-        </p>
-      ) : hasEntry ? (
-        <p className="fd-caption text-ink-muted mt-2.5 max-w-sm">
-          Keep pressing if you like. Only the first request created an entry — the rest were counted
-          as duplicates.
         </p>
       ) : (
         <p className="fd-caption text-ink-muted mt-2.5 max-w-sm">
-          One entry per verified account. {event.joinRequests.toLocaleString("en-IN")} join requests
-          have already been handled for this event.
+          One entry per verified account. A verifiable draw assigns seats after entries close; you cannot select or reserve a seat now.
         </p>
       )}
     </div>

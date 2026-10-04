@@ -30,6 +30,7 @@ The no-database mode uses the repository's deterministic demo data for UI develo
 
 ```sh
 npm run lint
+npm test
 npm run check:data
 npm run build
 ```
@@ -49,6 +50,6 @@ Join scenarios require `FAIRDROP_EVENT_ID` and comma-separated `FAIRDROP_SESSION
 
 ## Production configuration
 
-Use managed PostgreSQL and Redis (or deploy the Compose services), a real authenticated SMTP provider, HTTPS, durable backups, and a trusted reverse proxy. Set `APP_URL` to the public HTTPS origin. Set `TRUST_PROXY=true` only if the proxy overwrites `X-Forwarded-For`; otherwise the application uses the direct peer address for abuse controls. Keep `SESSION_SECRET` and `DRAW_ENCRYPTION_KEY` private and persistent: losing the draw key prevents revealing/verifying seeds for unfinished draws. Run one worker or scale workers horizontally through BullMQ. Migrations are versioned under `db/migrations` and are applied by the Compose migration service.
+Use managed PostgreSQL and Redis (or deploy the Compose services), a real authenticated SMTP provider, HTTPS, durable backups, and a trusted reverse proxy. Set `APP_URL` to the public HTTPS origin. Set `TRUST_PROXY=true` only when the ingress overwrites `X-Forwarded-For`; Next.js route handlers do not expose the socket peer address, so without a trusted forwarded address the signed-in challenge, join, and claim limits fall back to the account ID rather than sharing one global unknown-IP bucket. Keep `SESSION_SECRET` and `DRAW_ENCRYPTION_KEY` private and persistent: losing the draw key prevents revealing/verifying seeds for unfinished draws. Run one worker or scale workers horizontally through BullMQ. Migrations are versioned under `db/migrations` and are applied by the Compose migration service.
 
 The Docker image runs as a non-root user and uses Next standalone output. Place TLS termination and request-size/network protections at the hosting ingress. Monitor `/api/health`, application logs, PostgreSQL, Redis, and the worker process.

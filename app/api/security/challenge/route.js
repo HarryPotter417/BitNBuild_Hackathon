@@ -7,10 +7,22 @@ export const runtime = "nodejs";
 export async function POST(request) {
   try {
     const address=clientAddress(request);
-    const ipLimit=await enforceRateLimit(`challenge-ip:${address}`,{limit:60,windowMs:10_000});
-    if(!ipLimit.allowed)return Response.json({error:"Too many challenge requests. Try again shortly."},{status:429,headers:{"Retry-After":String(Math.ceil(ipLimit.retryAfterMs/1000))}});
+    if(address!=="unknown"){
+      const ipLimit=await enforceRateLimit(`challenge-ip:${address}`,{limit:60,windowMs:10_000});
+      if(!ipLimit.allowed)return Response.json({error:"Too many challenge requests. Try again shortly."},{status:429,headers:{"Retry-After":String(Math.ceil(ipLimit.retryAfterMs/1000))}});
+    }
     const user = await getSessionUser(request);
-    if (!user?.email_verified_at) return Response.json({ error: "Sign in with a verified account to enter." }, { status: 401 });
+    if (!user?.email_verified_at) {
+      if(address==="unknown"){
+        const ipLimit=await enforceRateLimit(`challenge-ip:${address}`,{limit:60,windowMs:10_000});
+        if(!ipLimit.allowed)return Response.json({error:"Too many challenge requests. Try again shortly."},{status:429,headers:{"Retry-After":String(Math.ceil(ipLimit.retryAfterMs/1000))}});
+      }
+      return Response.json({ error: "Sign in with a verified account to enter." }, { status: 401 });
+    }
+    if(address==="unknown"){
+      const userLimit=await enforceRateLimit(`challenge-user:${user.id}`,{limit:60,windowMs:10_000});
+      if(!userLimit.allowed)return Response.json({error:"Too many challenge requests. Try again shortly."},{status:429,headers:{"Retry-After":String(Math.ceil(userLimit.retryAfterMs/1000))}});
+    }
     const challenge = await issueChallenge(request, user.id);
     if (!challenge) return Response.json({ error: "Too many challenge requests. Try again shortly." }, { status: 429 });
     return Response.json(challenge, { headers: { "Cache-Control": "no-store" } });

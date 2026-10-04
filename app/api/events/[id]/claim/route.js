@@ -11,9 +11,10 @@ export async function POST(request, { params }) {
     if (!user?.email_verified_at) return Response.json({ error: "Sign in with a verified account to claim." }, { status: 401 });
     const key = request.headers.get("idempotency-key");
     const address = clientAddress(request);
+    const rateLimitAddress = clientAddress(request, user.id);
     const [userLimit, ipLimit] = await Promise.all([
       enforceRateLimit(`claim-user:${user.id}`, { limit: 15, windowMs: 60_000 }),
-      enforceRateLimit(`claim-ip:${address}`, { limit: 60, windowMs: 10_000 }),
+      enforceRateLimit(`claim-ip:${rateLimitAddress}`, { limit: 60, windowMs: 10_000 }),
     ]);
     if (!userLimit.allowed || !ipLimit.allowed) return Response.json({ error: "Too many requests. Your allocation is protected; try again shortly." }, { status: 429 });
     const result = await claimProductionSeat(id, user.id, key, address);

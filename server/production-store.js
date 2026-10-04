@@ -30,7 +30,7 @@ export async function listProductionEvents() {
       LEFT JOIN LATERAL (
         SELECT count(en.id)::int AS participants,coalesce(sum(en.request_count),0)::float8 AS join_requests,
           count(*) FILTER (WHERE a.status='CONFIRMED')::int AS confirmed,
-          count(*) FILTER (WHERE a.status='OFFERED')::int AS offered
+          count(*) FILTER (WHERE a.status IN ('OFFERED','CONFIRMED'))::int AS offered
         FROM entries en LEFT JOIN allocations a ON a.event_id=en.event_id AND a.user_id=en.user_id
         WHERE en.event_id=e.id
       ) counts ON true
@@ -44,7 +44,7 @@ export async function getProductionEvent(id) {
       FROM events e LEFT JOIN LATERAL (
         SELECT count(en.id)::int AS participants,coalesce(sum(en.request_count),0)::float8 AS join_requests,
           count(*) FILTER (WHERE a.status='CONFIRMED')::int AS confirmed,
-          count(*) FILTER (WHERE a.status='OFFERED')::int AS offered
+          count(*) FILTER (WHERE a.status IN ('OFFERED','CONFIRMED'))::int AS offered
         FROM entries en LEFT JOIN allocations a ON a.event_id=en.event_id AND a.user_id=en.user_id
         WHERE en.event_id=e.id
       ) counts ON true WHERE e.id=$1`, [id]);

@@ -10,7 +10,7 @@ function requireSecret() {
 
 export async function issueChallenge(request, userId) {
   requireSecret();
-  const ip = clientAddress(request);
+  const ip = clientAddress(request, userId);
   const limit = await enforceRateLimit(`pow:${ip}`, { limit: 20, windowMs: 60_000 });
   if (!limit.allowed) return null;
   const nonce = randomBytes(24).toString("base64url");
@@ -27,7 +27,7 @@ export async function verifyChallenge(request, userId, token, solution) {
   if (parts.length !== 5) return false;
   const [nonce, expiryText, boundUser, boundIp, signature] = parts;
   const expiry = Number(expiryText);
-  if (boundUser !== userId || boundIp !== clientAddress(request) || !Number.isInteger(expiry) || expiry < Date.now() / 1000 || expiry > Date.now() / 1000 + 120) return false;
+  if (boundUser !== userId || boundIp !== clientAddress(request, userId) || !Number.isInteger(expiry) || expiry < Date.now() / 1000 || expiry > Date.now() / 1000 + 120) return false;
   const payload = parts.slice(0, 4).join(".");
   const expected = Buffer.from(hmac(payload), "hex");
   const supplied = Buffer.from(signature, "hex");
@@ -43,8 +43,9 @@ export async function verifyChallenge(request, userId, token, solution) {
 }
 
 export async function allowJoinRequest(request, userId) {
+  const address = clientAddress(request, userId);
   const [ipLimit, userLimit] = await Promise.all([
-    enforceRateLimit(`join-ip:${clientAddress(request)}`, { limit: 80, windowMs: 10_000 }),
+    enforceRateLimit(`join-ip:${address}`, { limit: 80, windowMs: 10_000 }),
     enforceRateLimit(`join-user:${userId}`, { limit: 20, windowMs: 60_000 }),
   ]);
   return { allowed: ipLimit.allowed && userLimit.allowed, retryAfterMs: Math.max(ipLimit.retryAfterMs, userLimit.retryAfterMs) };

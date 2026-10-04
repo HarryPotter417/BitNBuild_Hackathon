@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
 
 export default async function WaitingRoomPage({ params }) {
   const { id } = await params;
-  const event = getEvent(id);
+  const event = await getEvent(id);
   if (!event) notFound();
 
   const [outcome,draw,verification] = await Promise.all([getOutcome(id),getDraw(id),event.hasDraw?getVerification(id):null]);

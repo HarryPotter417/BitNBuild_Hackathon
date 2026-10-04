@@ -76,9 +76,10 @@ export async function claimSeatAction(eventId, idempotencyKey) {
     if (!user?.email_verified_at) return { ok:false,code:401,message:"Sign in with a verified account to claim." };
     const headerStore = await headers();
     const address = clientAddress({headers:headerStore});
+    const rateLimitAddress = clientAddress({headers:headerStore},user.id);
     const [userLimit,ipLimit] = await Promise.all([
       enforceRateLimit(`claim-user:${user.id}`,{limit:15,windowMs:60_000}),
-      enforceRateLimit(`claim-ip:${address}`,{limit:60,windowMs:10_000}),
+      enforceRateLimit(`claim-ip:${rateLimitAddress}`,{limit:60,windowMs:10_000}),
     ]);
     if (!userLimit.allowed || !ipLimit.allowed) return { ok:false,code:429,message:"Too many requests. Your allocation is protected; try again shortly." };
     try { return await claimProductionSeat(eventId,user.id,idempotencyKey,address); }

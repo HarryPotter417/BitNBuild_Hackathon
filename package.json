@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test",
     "check:data": "node scripts/check-data.mjs",
     "db:migrate": "node scripts/migrate.mjs",
     "db:seed": "node scripts/seed-database.mjs",
